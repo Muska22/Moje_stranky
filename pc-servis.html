@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechFix – Opravy PC, Sítě & Instalace</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: rgba(255,255,255,0.07);
+    --accent: #00e5a0;
+    --accent2: #0066ff;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #ff4444;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* GRID LINES */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.03em;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: #000 !important;
+    padding: 10px 22px;
+    border-radius: 4px;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    transition: opacity 0.2s !important;
+  }
+
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.25);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 40px;
+    width: fit-content;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 32px;
+  }
+
+  .hero h1 .line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+  }
+
+  .hero h1 .accent-word {
+    color: var(--accent);
+    position: relative;
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin-bottom: 48px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    padding: 16px 36px;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: -0.01em;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,229,160,0.35);
+  }
+
+  .btn-secondary {
+    color: var(--text);
+    padding: 16px 36px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: border-color 0.2s;
+    letter-spacing: -0.01em;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* STATS ROW */
+  .stats-row {
+    display: flex;
+    gap: 48px;
+    margin-top: 80px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: var(--text);
+    letter-spacing: -0.04em;
+  }
+
+  .stat-num span { color: var(--accent); }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 300;
+  }
+
+  /* GLOW ORBS */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+  }
+
+  .orb1 {
+    width: 500px; height: 500px;
+    background: rgba(0,229,160,0.08);
+    top: -100px; right: -100px;
+    animation: float1 8s ease-in-out infinite;
+  }
+
+  .orb2 {
+    width: 350px; height: 350px;
+    background: rgba(0,102,255,0.07);
+    bottom: 0; left: 30%;
+    animation: float2 10s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(-30px, 40px); }
+  }
+
+  @keyframes float2 {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(20px, -30px); }
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* SERVICES */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .services {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.03em;
+    margin-bottom: 60px;
+    line-height: 1.05;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .service-card {
+    background: var(--card);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .service-card:hover {
+    background: #1c1c28;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .service-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .service-icon {
+    width: 56px; height: 56px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    font-size: 1.5rem;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .service-card:hover .service-icon {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.08);
+  }
+
+  .service-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: -0.02em;
+  }
+
+  .service-card p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .service-list {
+    list-style: none;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .service-list li {
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .service-list li::before {
+    content: '→';
+    color: var(--accent);
+    font-size: 0.7rem;
+  }
+
+  /* HOW IT WORKS */
+  .how {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .how-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    margin-top: 60px;
+    position: relative;
+  }
+
+  .how-steps::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 14%;
+    right: 14%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    opacity: 0.4;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .step-num {
+    width: 56px; height: 56px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    background: var(--bg);
+    position: relative;
+    z-index: 1;
+  }
+
+  .step h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .step p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* PRICING */
+  .pricing {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .pricing-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 40px 32px;
+    position: relative;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .pricing-card:hover {
+    border-color: rgba(0,229,160,0.3);
+    transform: translateY(-4px);
+  }
+
+  .pricing-card.featured {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.04);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 4px 14px;
+    border-radius: 100px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .pricing-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .pricing-price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.8rem;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .pricing-price sub {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--muted);
+    vertical-align: baseline;
+  }
+
+  .pricing-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .pricing-features li {
+    font-size: 0.88rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--text);
+  }
+
+  .pricing-features li .check {
+    color: var(--accent);
+    font-size: 0.8rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* TESTIMONIALS */
+  .testimonials {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .testimonial-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    transition: border-color 0.3s;
+  }
+
+  .testimonial-card:hover {
+    border-color: rgba(0,229,160,0.2);
+  }
+
+  .stars {
+    color: var(--accent);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .testimonial-text {
+    font-size: 0.92rem;
+    color: var(--text);
+    line-height: 1.7;
+    font-weight: 300;
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #000;
+  }
+
+  .author-info .name {
+    font-weight: 500;
+    font-size: 0.88rem;
+  }
+
+  .author-info .role {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* CTA SECTION */
+  .cta-section {
+    margin: 60px 40px 100px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 80px 60px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,229,160,0.12), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-section p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 40px;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* CONTACT FORM */
+  .contact {
+    padding: 60px 40px 100px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 130px;
+    line-height: 1.6;
+  }
+
+  .form-select option { background: var(--card); }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  footer .logo { font-size: 1.1rem; }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--accent); }
+
+  .footer-copy {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* SCROLL ANIMATIONS */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 20px 60px; }
+    .services, .how, .pricing, .testimonials { padding: 70px 20px; }
+    .services-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .how-steps { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .how-steps::before { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .cta-section { padding: 50px 24px; margin: 40px 20px; }
+    footer { padding: 30px 20px; flex-direction: column; align-items: flex-start; }
+    .stats-row { gap: 28px; }
+    .contact { padding: 40px 20px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Tech<span>Fix</span></div>
+  <ul class="nav-links">
+    <li><a href="#sluzby">Služby</a></li>
+    <li><a href="#jak-to-funguje">Postup</a></li>
+    <li><a href="#cenik">Ceník</a></li>
+    <li><a href="#reference">Reference</a></li>
+    <li><a href="#kontakt" class="nav-cta">Kontakt</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div style="position:relative; overflow:hidden;">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="hero">
+    <div class="hero-badge">Dostupné ihned · Litoměřice & okolí</div>
+    <h1>
+      Váš počítač<br>
+      <span class="line2">v dobrých</span>
+      <span class="accent-word"> rukou.</span>
+    </h1>
+    <p class="hero-desc">
+      Opravy PC a notebooků, instalace softwaru, zabezpečení sítě — rychle, spolehlivě a bez zbytečných řečí. Přijedu k vám domů nebo do firmy.
+    </p>
+    <div class="hero-actions">
+      <a href="#kontakt" class="btn-primary">Poptat opravu</a>
+      <a href="#sluzby" class="btn-secondary">Co nabízím →</a>
+    </div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num">200<span>+</span></div>
+        <div class="stat-label">Spokojených zákazníků</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-label">Úspěšnost oprav</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24<span>h</span></div>
+        <div class="stat-label">Průměrná doba opravy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">5<span>★</span></div>
+        <div class="stat-label">Průměrné hodnocení</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SERVICES -->
+<section id="sluzby">
+  <div class="services fade-in">
+    <div class="section-label">// Nabídka služeb</div>
+    <h2 class="section-title">Co pro vás udělám</h2>
+    <div class="services-grid">
+
+      <div class="service-card">
+        <div class="service-icon">🔧</div>
+        <h3>Opravy PC & notebooků</h3>
+        <p>Nefunguje vám počítač? Diagnostika a oprava hardwarových i softwarových závad na místě nebo v servisu.</p>
+        <ul class="service-list">
+          <li>Výměna disků, RAM, baterií</li>
+          <li>Čištění od prachu & přetaktování</li>
+          <li>Oprava nespouštění systému</li>
+          <li>Záchrana dat z poškozených disků</li>
+          <li>Výměna klávesnic & displejů</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">💾</div>
+        <h3>Instalace & správa softwaru</h3>
+        <p>Čistá instalace Windows, Office, antivirů i specializovaných programů. Vše nastavím tak, aby to prostě fungovalo.</p>
+        <ul class="service-list">
+          <li>Windows 10 / 11 – čistá instalace</li>
+          <li>Microsoft Office & 365</li>
+          <li>Antivirová ochrana</li>
+          <li>Zálohování a obnova dat</li>
+          <li>Migrace na nový počítač</li>
+        </ul>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🌐</div>
+        <h3>Síťová řešení</h3>
+        <p>Pomalý internet nebo výpadky? Navrhnu a nastavím spolehlivou síť pro domácnost i malou firmu.</p>
+        <ul class="service-list">
+          <li>Nastavení routeru & Wi-Fi</li>
+          <li>Rozšíření pokrytí (mesh, repeatery)</li>
+          <li>Strukturovaná kabeláž</li>
+          <li>VPN & vzdálený přístup</li>
+          <li>Zabezpečení sítě & firewall</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="jak-to-funguje">
+  <div class="how fade-in">
+    <div class="section-label">// Jak to probíhá</div>
+    <h2 class="section-title">Čtyři kroky<br>k fungujícímu PC</h2>
+    <div class="how-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Kontaktujte mě</h4>
+        <p>Napište nebo zavolejte. Popište problém a domluvíme termín — nejčastěji do 24 hodin.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Diagnostika</h4>
+        <p>Přijedu k vám nebo přinesete zařízení. Bezplatně zjistím, co je špatně, a sdělím cenu.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Oprava / nastavení</h4>
+        <p>Po vašem souhlasu provádím opravu. Průběžně informuji a případné změny konzultuji.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h4>Předání & záruka</h4>
+        <p>Vše předám s vysvětlením. Na práci dávám 30denní záruku a jsem k dispozici pro dotazy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PRICING -->
+<section id="cenik">
+  <div class="pricing fade-in">
+    <div class="section-label">// Ceník</div>
+    <h2 class="section-title">Férové ceny,<br>žádná překvapení</h2>
+    <div class="pricing-grid">
+
+      <div class="pricing-card">
+        <div class="pricing-name">Základní</div>
+        <div class="pricing-price">od 300 <sub>Kč</sub></div>
+        <div class="pricing-desc">Jednorázové zásahy & drobné opravy</div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Reinstalace systému</li>
+          <li><span class="check">✓</span> Instalace programů</li>
+          <li><span class="check">✓</span> Nastavení e-mailu & tiskárny</li>
+          <li><span class="check">✓</span> Čištění od virů & malwaru</li>
+          <li><span class="check">✓</span> Doprava do 10 km zdarma</li>
+        </ul>
+        <a href="#kontakt" class="btn-secondary" style="display:block; text-align:center;">Poptat</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="featured-badge">Nejoblíbenější</div>
+        <div class="pricing-name">Kompletní servis</div>
+        <div class="pricing-price">od 600 <sub>Kč</sub></div>
+        <div class="pricing-desc">Komplexní opravy & nastavení od A do Z</div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Vše ze Základního</li>
+          <li><span class="check">✓</span> Výměna HDD/SSD, RAM</li>
+          <li><span class="check">✓</span> Záchrana & přesun dat</li>
+          <li><span class="check">✓</span> Nastavení Wi-Fi & routeru</li>
+          <li><span class="check">✓</span> 30denní záruka na práci</li>
+        </ul>
+        <a href="#kontakt" class="btn-primary" style="display:block; text-align:center;">Poptat</a>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-name">Firemní řešení</div>
+        <div class="pricing-price">Dle dohody</div>
+        <div class="pricing-desc">Pravidelná správa IT pro firmy a živnostníky</div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Správa firemní sítě</li>
+          <li><span class="check">✓</span> VPN & vzdálený přístup</li>
+          <li><span class="check">✓</span> Zálohovací strategie</li>
+          <li><span class="check">✓</span> Prioritní podpora</li>
+          <li><span class="check">✓</span> Paušální smlouva možná</li>
+        </ul>
+        <a href="#kontakt" class="btn-secondary" style="display:block; text-align:center;">Nezávazná poptávka</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TESTIMONIALS -->
+<section id="reference">
+  <div class="testimonials fade-in">
+    <div class="section-label">// Reference</div>
+    <h2 class="section-title">Co říkají zákazníci</h2>
+    <div class="testimonials-grid">
+
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">„Notebooky šel po roce do důchodu — nebo tak jsme si mysleli. Přišel, vyměnil SSD, přeinstaloval Windows a je jako nový. Přitom jiný servis říkal, že se nevyplatí opravovat."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">MN</div>
+          <div class="author-info">
+            <div class="name">Miroslava N.</div>
+            <div class="role">Litoměřice</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">„Potřeboval jsem ve firmě zprovoznit Wi-Fi do celé kanceláře. Navrhli řešení, vše nainstalovali a od té doby žádné výpadky. Konečně normální síť."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">TK</div>
+          <div class="author-info">
+            <div class="name">Tomáš K.</div>
+            <div class="role">Jednatel, malá firma</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">„Napadl nás ransomware. Během dne přijeli, smazali vše, záchranili data ze zálohy a nastavili pořádný antivir. Profesionální přístup, srozumitelné vysvětlení."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">LP</div>
+          <div class="author-info">
+            <div class="name">Lenka P.</div>
+            <div class="role">Účetní, Roudnice n. L.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CONTACT FORM -->
+<section id="kontakt">
+  <div class="contact fade-in">
+    <div class="section-label">// Kontakt</div>
+    <h2 class="section-title" style="font-size: clamp(1.8rem, 3vw, 2.6rem);">Poptejte opravu<br>nebo konzultaci</h2>
+    <p style="color: var(--muted); margin-bottom: 40px; font-weight: 300; font-size: 0.95rem;">Vyplňte formulář a ozvu se vám do několika hodin. Diagnostika je zdarma.</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Jméno</label>
+        <input type="text" class="form-input" placeholder="Jan Novák">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input type="tel" class="form-input" placeholder="+420 777 000 000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">E-mail</label>
+      <input type="email" class="form-input" placeholder="jan@novak.cz">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Typ požadavku</label>
+      <select class="form-select">
+        <option value="">— Vyberte —</option>
+        <option>Oprava PC / notebooku</option>
+        <option>Instalace systému nebo softwaru</option>
+        <option>Síťové řešení</option>
+        <option>Záchrana dat</option>
+        <option>Firemní IT správa</option>
+        <option>Jiné</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Popis problému</label>
+      <textarea class="form-textarea" placeholder="Popište stručně, co se děje a kdy problém vznikl…"></textarea>
+    </div>
+    <button class="btn-primary" onclick="handleSubmit(this)" style="width:100%; font-size: 1rem; padding: 18px;">Odeslat poptávku</button>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<div style="position:relative; z-index:1; padding: 0 40px 100px; max-width:1200px; margin: 0 auto;">
+  <div class="cta-section fade-in">
+    <h2>Potřebujete pomoc hned?</h2>
+    <p>Zavolejte přímo — pokud mám volno, přijedu ještě dnes.</p>
+    <div class="cta-buttons">
+      <a href="tel:+420777000000" class="btn-primary">📞 +420 777 000 000</a>
+      <a href="mailto:info@techfix.cz" class="btn-secondary">info@techfix.cz</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Tech<span>Fix</span></div>
+  <ul class="footer-links">
+    <li><a href="#sluzby">Služby</a></li>
+    <li><a href="#cenik">Ceník</a></li>
+    <li><a href="#kontakt">Kontakt</a></li>
+  </ul>
+  <div class="footer-copy">© 2025 TechFix · Litoměřice</div>
+</footer>
+
+<script>
+  // Scroll animation
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Form submit
+  function handleSubmit(btn) {
+    const original = btn.textContent;
+    btn.textContent = 'Odesílám…';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = '✓ Odesláno! Ozvu se co nejdříve.';
+      btn.style.background = '#1a1a2e';
+      btn.style.color = 'var(--accent)';
+      btn.style.border = '1px solid var(--accent)';
+    }, 1200);
+  }
+</script>
+</body>
+</html>
